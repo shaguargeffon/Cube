@@ -5,6 +5,9 @@ from PyQt5.QtGui import QPixmap
 import random
 import copy
 import config
+import threading
+import schedule
+import time
 
 
 def get_all_picture_names():
@@ -28,7 +31,9 @@ class CubeCFOPTestGame(QWidget):
         self.setWindowTitle("Cube CFOP Test")
         self.layout = QVBoxLayout(self)
 
-        self.start_button = QPushButton('Update', self)
+        self.start_button = QPushButton('Next Picture', self)
+        self.start_learn_button = QPushButton('Switch to Learn mode', self)
+        self.start_test_button = QPushButton('Switch to Test mode', self)
 
         self.label = QLabel(self)
         self.label.resize(300, 200)
@@ -37,15 +42,25 @@ class CubeCFOPTestGame(QWidget):
 
         self.start_button.show()
 
-        self.start_button.clicked.connect(self.button_click)
+        self.start_button.clicked.connect(self.update_button_click)
+        self.start_learn_button.clicked.connect(self.start_learn_thread)
+        self.start_test_button.clicked.connect(self.start_test_thread)
 
         self.layout.addWidget(self.start_button)
+        self.layout.addWidget(self.start_learn_button)
+        self.layout.addWidget(self.start_test_button)
 
         self.picture_list = get_all_picture_names()
 
         self.picture_list_backup = copy.deepcopy(self.picture_list)
 
-    def button_click(self):
+        self.test_task = schedule.every().second.do(self.update_button_click)
+
+        self.test_time_interval = config.test_time_interval
+
+        self.is_test_continuous = True
+
+    def update_button_click(self):
         if len(self.picture_list) == 0:
             self.picture_list = copy.deepcopy(self.picture_list_backup)
 
@@ -60,6 +75,22 @@ class CubeCFOPTestGame(QWidget):
         self.label.setPixmap(pix)
         self.layout.addWidget(self.label)
         self.setLayout(self.layout)
+
+    def start_learn_thread(self):
+        self.start_button.setEnabled(True)
+        self.is_test_continuous = False
+
+    def start_test_thread(self):
+        self.test_task = schedule.every().second.do(self.update_button_click)
+        self.start_button.setEnabled(False)
+        self.is_test_continuous = True
+        thread = threading.Thread(target=self.show_pictures_continuously)
+        thread.start()
+
+    def show_pictures_continuously(self):
+        while self.is_test_continuous:
+            schedule.run_pending()
+            time.sleep(self.test_time_interval)
 
 
 if __name__ == '__main__':
