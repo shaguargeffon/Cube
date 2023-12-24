@@ -1,6 +1,15 @@
 # Learn Cube and Test your reaction time about CFOP
 It is implemented using PyQt5 library
 
+# How to clone the repository from GitHub
+Install git on Windows
+Create one folder locally, open the git bash, run the command : git clone https://github.com/shaguargeffon/Cube.git
+
+# How to get the latest version of the Software
+Open the git bash, run the command : git pull
+Don't edit any .py file, or the pull will be failed.
+Pictures folder can be extended/modified
+
 # How to install
 install python with the version 3.9 or 3.10 (mandatory)
 install PyQt5 pip package using the command : pip install PyQt5  (in cmd mode)
