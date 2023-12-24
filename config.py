@@ -1,0 +1,2 @@
+
+pictures_path = "pictures"
